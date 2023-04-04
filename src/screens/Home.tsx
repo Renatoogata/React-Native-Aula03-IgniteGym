@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { VStack, FlatList, HStack, Heading, Text } from "native-base";
+
 import { Group } from "@components/Group";
 import { HomeHeader } from "@components/HomeHeader";
-import { VStack, FlatList } from "native-base";
+import { ExerciseCard } from "@components/ExerciseCard";
 
 export function Home() {
-    const [group, setGroups] = useState(['costas', 'BICEps', 'Tríceps', 'ombro']);
-    const [groupSelected, setGroupSelected] = useState('costa');
+    const [group, setGroups] = useState(['Costas', 'BICEps', 'Tríceps', 'ombro']);
+    const [exercises, setExercises] = useState(['Puxada frontal', 'Remada curvada', 'Remada unilateral', 'Levantamento terra']);
+    const [groupSelected, setGroupSelected] = useState('costas');
 
 
 
@@ -19,7 +22,8 @@ export function Home() {
                 renderItem={({ item }) => (
                     <Group
                         name={item}
-                        isActive={groupSelected === item}  // verificando se o estado é igual o valor declarado(costa) BOOLEANO
+                        isActive={(groupSelected).toLocaleUpperCase() === (item).toLocaleUpperCase()}  // verificando se o estado é igual o valor declarado(costa) BOOLEANO
+                        //.toLocaleUpperCase() transforma a string toda em maiúcula localmente (está comparando a string maiuscula com maiuscula)
                         onPress={() => setGroupSelected(item)} // Boa logica para selecionar um componente entre varios
                     />
                 )}
@@ -29,6 +33,31 @@ export function Home() {
                 my={10} //margin top&bottom
                 maxH={10} // a flatlist ocupa todo o espaço disponivel, com o maxHeight eu garanto que ele só vai ter o tamanho estipulado(10)             
             />
+
+            <VStack flex={1} px={8}>
+                <HStack justifyContent="space-between" mb={5}>
+                    <Heading color="gray.200" fontSize="md">
+                        Exercícios
+                    </Heading>
+
+                    <Text color="gray.200" fontSize="sm">
+                        {exercises.length}
+                    </Text>
+                </HStack>
+
+                <FlatList
+                    data={exercises}
+                    keyExtractor={item => item}
+                    renderItem={({ item }) => (
+                        <ExerciseCard
+
+                        />
+                    )}
+                    showsVerticalScrollIndicator={false}
+                    _contentContainerStyle={{ paddingBottom: 20 }} // espacaçamento depois que a flastlist
+                />
+
+            </VStack>
         </VStack>
     )
 }

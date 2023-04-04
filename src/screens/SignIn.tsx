@@ -1,4 +1,7 @@
+import { useNavigation } from '@react-navigation/native';
 import { VStack, Image, Text, Center, Heading, ScrollView } from 'native-base' //Componente de Layout (alinha um componente em baixo do outro)
+
+import { AuthNavigatorRoutesProps } from '@routes/auth.routes'
 
 import LogoSvg from '@assets/logo.svg'
 import BackgroundImg from '@assets/background.png'
@@ -7,14 +10,22 @@ import { Input } from '@components/Input';
 import { Button } from '@components/Button';
 
 export function SignIn() {
+
+    const navigation = useNavigation<AuthNavigatorRoutesProps>(); //Como a app vai ter 2 tipos de rotas( usuario logado e não logado ) é bom definir e separar cada uma
+
+    function handleNewAccount() {
+        navigation.navigate('signUp')
+    }
+
     return (
         <ScrollView
             contentContainerStyle={{ flexGrow: 1 }} // Preencher a tela 
             showsVerticalScrollIndicator={false} // Tirar barra de rolagem
         >
-            <VStack flex={1} bg='gray.700' px={10}>
+            <VStack flex={1} px={10}>
                 <Image
                     source={BackgroundImg}
+                    defaultSource={BackgroundImg} // define que essa imagem é padrão para que a app carregue mais rapido
                     alt="Pessoas treinando"
                     resizeMode='contain' //se enquadra melhor na tela
                     position="absolute" //começar do inicio da tela e todos os outros componentes ficam em cima dela
@@ -59,7 +70,9 @@ export function SignIn() {
 
                     <Button
                         title='Criar Conta'
-                        variant='outline' />
+                        variant='outline'
+                        onPress={handleNewAccount}
+                    />
                 </Center>
             </VStack>
         </ScrollView>

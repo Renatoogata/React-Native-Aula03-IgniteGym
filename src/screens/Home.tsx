@@ -1,16 +1,24 @@
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { VStack, FlatList, HStack, Heading, Text } from "native-base";
+
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 import { Group } from "@components/Group";
 import { HomeHeader } from "@components/HomeHeader";
 import { ExerciseCard } from "@components/ExerciseCard";
+
 
 export function Home() {
     const [group, setGroups] = useState(['Costas', 'BICEps', 'Tríceps', 'ombro']);
     const [exercises, setExercises] = useState(['Puxada frontal', 'Remada curvada', 'Remada unilateral', 'Levantamento terra']);
     const [groupSelected, setGroupSelected] = useState('costas');
 
+    const navigation = useNavigation<AppNavigatorRoutesProps>()
 
+    function handleOpenExerciseDetails() {
+        navigation.navigate('exercise')
+    }
 
     return (
         <VStack flex={1}>
@@ -31,7 +39,8 @@ export function Home() {
                 showsHorizontalScrollIndicator={false} //desabilitar barra de rolagem horizontal
                 _contentContainerStyle={{ px: 8 }} //espacamento interno
                 my={10} //margin top&bottom
-                maxH={10} // a flatlist ocupa todo o espaço disponivel, com o maxHeight eu garanto que ele só vai ter o tamanho estipulado(10)             
+                maxH={10} // a flatlist ocupa todo o espaço disponivel, com o maxHeight eu garanto que ele só vai ter o tamanho estipulado(10)
+                minH={10} // para a lista de grupo não sumir colocar altura minima
             />
 
             <VStack flex={1} px={8}>
@@ -50,7 +59,7 @@ export function Home() {
                     keyExtractor={item => item}
                     renderItem={({ item }) => (
                         <ExerciseCard
-
+                            onPress={handleOpenExerciseDetails}
                         />
                     )}
                     showsVerticalScrollIndicator={false}

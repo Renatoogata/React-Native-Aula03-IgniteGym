@@ -16,11 +16,14 @@ export function HistoryCard() {
         >
             <VStack
                 marginRight={5}
+                flex={1}
             >
                 <Heading
                     fontSize="md"
                     color="white"
                     textTransform="capitalize" // manter a primeira letra maiúcula
+                    numberOfLines={1} // nunca passar 1 linha
+                    fontFamily="heading"
                 >
                     Costas
                 </Heading>

@@ -11,13 +11,13 @@ export function ExerciseCard({ ...rest }: Props) {
         <TouchableOpacity {...rest}>
             <HStack bg="gray.500" alignItems="center" p={2} pr={4} rounded="md" marginBottom={3}>
                 <Image
-                    source={{ uri: 'https://thumb.mais.uol.com.br/16669847-large.jpg?ver=0' }}
+                    source={{ uri: 'http://conteudo.imguol.com.br/c/entretenimento/0c/2019/12/03/remada-unilateral-com-halteres-1575402100538_v2_600x600.jpg' }}
                     alt="Imagem do Exercicio"
                     w={16}
                     h={16}
                     rounded="md"
                     mr={4}
-                    resizeMode="center" // sempre manter a imagem centralizada
+                    resizeMode="cover" // sempre manter a imagem centralizada
                 />
 
                 <VStack flex={1}>

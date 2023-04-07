@@ -40,6 +40,7 @@ export function Exercise() {
                 >
                     <Heading
                         color="gray.100"
+                        fontFamily="heading"
                         fontSize="lg"
                         flexShrink={1} // preveni que se o texto for muito grande ele empurre os outros componentes
                     >

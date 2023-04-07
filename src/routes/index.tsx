@@ -14,7 +14,7 @@ export function Routes() {
         <Box flex={1} bg="gray.700" /*Box foi criada para prevenir glitch de tela branca na transição de telas*/>
             <NavigationContainer
                 theme={theme}>
-                <AppRoutes />
+                <AuthRoutes />
             </NavigationContainer>
         </Box>
     )

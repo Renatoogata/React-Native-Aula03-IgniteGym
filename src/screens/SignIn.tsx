@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { VStack, Image, Text, Center, Heading, ScrollView } from 'native-base' //Componente de Layout (alinha um componente em baixo do outro)
+import { VStack, Image, Text, Center, Heading, ScrollView, useToast } from 'native-base' //Componente de Layout (alinha um componente em baixo do outro)
 import { useForm, Controller } from 'react-hook-form';
 
 import { AuthNavigatorRoutesProps } from '@routes/auth.routes'
+
+import { useAuth } from '@hooks/useAuth';
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
@@ -12,6 +15,8 @@ import BackgroundImg from '@assets/background.png'
 
 import { Input } from '@components/Input';
 import { Button } from '@components/Button';
+
+import { AppError } from '@utils/AppError';
 
 type FormDataProps = {
     email_login: string;
@@ -24,6 +29,9 @@ const logInSchema = yup.object({
 })
 
 export function SignIn() {
+    const [isLoading, setIsLoading] = useState(false)
+    const { sigIn } = useAuth();
+    const toast = useToast();
 
     const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
         resolver: yupResolver(logInSchema)
@@ -31,8 +39,25 @@ export function SignIn() {
 
     const navigation = useNavigation<AuthNavigatorRoutesProps>(); //Como a app vai ter 2 tipos de rotas( usuario logado e não logado ) é bom definir e separar cada uma
 
-    function handleLogin({ email_login, password }: FormDataProps) {
-        console.log({ email_login, password })
+    async function handleLogin({ email_login, password }: FormDataProps) {
+        try {
+            setIsLoading(true)
+            await sigIn(email_login, password);
+
+        } catch (error) {
+            const isAppError = error instanceof AppError;
+            const title = isAppError ? error.message : 'Não foi possível entrar. Tente novamente mais tarde' // estou verificando se é uma instancia de AppError, se for vai ter a propria mensagem customizada do backend, se não será lançada uma mensagem genérica
+
+            setIsLoading(false)
+
+            toast.show({
+                title,
+                placement: 'top',
+                bgColor: 'red.500'
+            })
+
+
+        }
     }
 
     function handleNewAccount() {
@@ -103,6 +128,7 @@ export function SignIn() {
                     <Button
                         title='Acessar'
                         onPress={handleSubmit(handleLogin)}
+                        isLoading={isLoading} // botão de carregamento (bolinha girando)
                     />
                 </Center>
 

@@ -21,9 +21,9 @@ const api = axios.create({
 // 2- se for um erro (estou pegando ela e retornando uma Promise.reject padronizado pela minha classe AppError)
 api.interceptors.response.use(response => response, error => {
     if (error.response && error.response.data) {
-        return Promise.reject(new AppError(error.response.data.message));
+        return Promise.reject(new AppError(error.response.data.message)); // Aqui eu retorno um erro customizado pelo meu backend
     } else {
-        return Promise.reject(error)
+        return Promise.reject(error) // retorno erro genérico
     }
 })
 

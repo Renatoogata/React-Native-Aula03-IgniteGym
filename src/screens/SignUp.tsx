@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { VStack, Image, Text, Center, Heading, ScrollView, useToast } from 'native-base' //Componente de Layout (alinha um componente em baixo do outro)
 import { useForm, Controller } from 'react-hook-form';
@@ -6,6 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
 import { api } from '@services/api';
+import { useAuth } from '@hooks/useAuth';
 
 import LogoSvg from '@assets/logo.svg'
 import BackgroundImg from '@assets/background.png'
@@ -29,8 +31,10 @@ const signUpSchema = yup.object({ // Schema de validação do meu formulário
 });
 
 export function SignUp() {
+    const [isLoading, setIsLoading] = useState(false);
 
     const toast = useToast()
+    const { signIn } = useAuth();
 
     const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
         resolver: yupResolver(signUpSchema) // estou passando meu signUpSchema para o meu formulário para fazaer a validação
@@ -42,13 +46,15 @@ export function SignUp() {
         navigation.goBack()
     }
 
-
-
     async function handleSignUp({ email, name, password }: FormDataProps) {
         try {
-            const response = await api.post('/users', { name, email, password })
-            console.log(response.data)
+            setIsLoading(true);
+
+            await api.post('/users', { name, email, password });
+            await signIn(email, password);
+
         } catch (error) {
+            setIsLoading(false);
             const isAppError = error instanceof AppError; // verificando se é uma instancia de AppError (quer dizer que vai ser um error reconhecido do backend ex: email ja utilizado)
             const title = isAppError ? error.message : 'Não foi possível criar a conta tente novamente mais tarde'
 
@@ -58,35 +64,34 @@ export function SignUp() {
                 bg: 'red.500'
             })
         }
-
-        // MÉTODO COM ASYNC AWAIT
-        // const response = await fetch('http://192.168.0.2:3333/users', { // função para enviar alguma requisição para o backend
-        //     method: 'POST',
-        //     headers: {
-        //         'Accpet': 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({ name, email, password })
-        // })
-
-        // const data = await response.json()
-        // console.log(data)
-
-        // MÉTODO SEM ASYNC AWAIT (AMBOS FUNCIONAM)
-        // function handleSignUp({ email, name, password, password_confirm }: FormDataProps) {
-        //     // pegar o ip onde está rodando o servidor, no meu caso no terminal digitar 'ifconfig' e pegar o inet
-        //     fetch('http://192.168.0.2:3333/users', { // função para enviar alguma requisição para o backend
-        //         method: 'POST',
-        //         headers: {
-        //             'Accpet': 'application/json',
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ name, email, password })
-        //     })
-        //         .then(response => response.json()) // obtendo a resposta do backend e converter para json
-        //         .then(data => console.log(data))   // pegando a respota e mostrando no console
-        // }
     }
+    // MÉTODO COM ASYNC AWAIT
+    // const response = await fetch('http://192.168.0.2:3333/users', { // função para enviar alguma requisição para o backend
+    //     method: 'POST',
+    //     headers: {
+    //         'Accpet': 'application/json',
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ name, email, password })
+    // })
+
+    // const data = await response.json()
+    // console.log(data)
+
+    // MÉTODO SEM ASYNC AWAIT (AMBOS FUNCIONAM)
+    // function handleSignUp({ email, name, password, password_confirm }: FormDataProps) {
+    //     // pegar o ip onde está rodando o servidor, no meu caso no terminal digitar 'ifconfig' e pegar o inet
+    //     fetch('http://192.168.0.2:3333/users', { // função para enviar alguma requisição para o backend
+    //         method: 'POST',
+    //         headers: {
+    //             'Accpet': 'application/json',
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({ name, email, password })
+    //     })
+    //         .then(response => response.json()) // obtendo a resposta do backend e converter para json
+    //         .then(data => console.log(data))   // pegando a respota e mostrando no console
+    // }
 
     return (
         <ScrollView
@@ -178,6 +183,7 @@ export function SignUp() {
                     <Button
                         title='Criar e acessar'
                         onPress={handleSubmit(handleSignUp)} // a função handleSubmit do useForm será a responsável por passar todos os dados do formulario
+                        isLoading={isLoading} // ativar o carregament do botão
                     />
                 </Center>
 
@@ -190,4 +196,5 @@ export function SignUp() {
             </VStack>
         </ScrollView>
     );
+
 }

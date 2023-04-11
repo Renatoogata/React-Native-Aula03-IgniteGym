@@ -30,7 +30,7 @@ const logInSchema = yup.object({
 
 export function SignIn() {
     const [isLoading, setIsLoading] = useState(false)
-    const { sigIn } = useAuth();
+    const { signIn } = useAuth();
     const toast = useToast();
 
     const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
@@ -42,7 +42,7 @@ export function SignIn() {
     async function handleLogin({ email_login, password }: FormDataProps) {
         try {
             setIsLoading(true)
-            await sigIn(email_login, password);
+            await signIn(email_login, password);
 
         } catch (error) {
             const isAppError = error instanceof AppError;

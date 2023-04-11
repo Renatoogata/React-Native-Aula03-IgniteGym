@@ -2,9 +2,15 @@ import { HStack, Text, Heading, VStack, Icon } from "native-base";
 import { MaterialIcons } from '@expo/vector-icons'
 import { TouchableOpacity } from "react-native";
 
+import { useAuth } from "@hooks/useAuth";
+
+import defaultUserPhotoImg from '@assets/userPhotoDefault.png'
+
 import { UserPhoto } from "./UserPhoto";
 
 export function HomeHeader() {
+    const { user, signOut } = useAuth()
+
     return (
         <HStack
             bg="gray.600"
@@ -14,7 +20,7 @@ export function HomeHeader() {
             alignItems="center"
         >
             <UserPhoto
-                source={{ uri: 'https://img.quizur.com/f/img628d02b79ce434.31201082.jpg?lastEdited=1653408443' }}
+                source={user.avatar ? { uri: user.avatar } : defaultUserPhotoImg}
                 alt="Imagem do usuário"
                 size={16}
                 mr={4}
@@ -24,11 +30,11 @@ export function HomeHeader() {
                 <Text color="gray.100" fontSize="md">Olá,</Text>
 
                 <Heading color="gray.100" fontSize="md" fontFamily="heading">
-                    Renato
+                    {user.name}
                 </Heading>
             </VStack>
 
-            <TouchableOpacity>
+            <TouchableOpacity onPress={signOut}>
                 <Icon //utilizando o Icon do native base eu posso usar icones do Material Icons por exemplo e puxar as medidas de tamanho do nosso tema criado com o native base
                     as={MaterialIcons} // descrever qual biblioteca de icones utilizar
                     name="logout"      // nome do icone

@@ -1,11 +1,17 @@
+import { useContext } from "react";
 import { useTheme, Box } from "native-base"; //pegar o thema padrão definido no App.tsx
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native"; // DefaultTheme como o nome sugere definir um tema padrão
 
 import { AuthRoutes } from "./auth.routes";
 import { AppRoutes } from "./app.routes";
+import { AuthContext } from "@contexts/AuthContext";
+
 
 export function Routes() {
     const { colors } = useTheme();
+
+    const contextData = useContext(AuthContext)
+    console.log("Usuario logado ->", contextData)
 
     const theme = DefaultTheme;
     theme.colors.background = colors.gray[700];

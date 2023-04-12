@@ -1,17 +1,20 @@
 import { Heading, HStack, Image, Text, VStack, Icon } from "native-base";
 import { TouchableOpacityProps, TouchableOpacity } from "react-native";
 import { Entypo } from '@expo/vector-icons'
+import { ExerciseDTO } from "@dtos/ExerciseDTO";
+
+import { api } from "@services/api";
 
 type Props = TouchableOpacityProps & {
-
+    data: ExerciseDTO
 }
 
-export function ExerciseCard({ ...rest }: Props) {
+export function ExerciseCard({ data, ...rest }: Props) {
     return (
         <TouchableOpacity {...rest}>
             <HStack bg="gray.500" alignItems="center" p={2} pr={4} rounded="md" marginBottom={3}>
                 <Image
-                    source={{ uri: 'http://conteudo.imguol.com.br/c/entretenimento/0c/2019/12/03/remada-unilateral-com-halteres-1575402100538_v2_600x600.jpg' }}
+                    source={{ uri: `${api.defaults.baseURL}/exercise/thumb/${data.thumb}` }} // pegando a url do servidor e acessando o caminho onde estão as fotos por fim o data.thumb é o nome da imagem
                     alt="Imagem do Exercicio"
                     w={16}
                     h={16}
@@ -22,7 +25,7 @@ export function ExerciseCard({ ...rest }: Props) {
 
                 <VStack flex={1}>
                     <Heading fontSize="lg" color="white" fontFamily="heading">
-                        Remana unilateral
+                        {data.name}
                     </Heading>
 
                     <Text
@@ -31,7 +34,7 @@ export function ExerciseCard({ ...rest }: Props) {
                         mt={1}
                         numberOfLines={2} //MÁXIMO DE LINHAS QUE O TEXTO PODE TER
                     >
-                        3 series x 12 repetições
+                        {data.series} series x {data.repetitions} repetições
                     </Text>
                 </VStack>
 

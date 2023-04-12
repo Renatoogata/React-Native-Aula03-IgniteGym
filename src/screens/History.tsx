@@ -1,21 +1,43 @@
-import { Center, SectionList, Text } from "native-base";
-import { HistoryCard } from "@components/HistoryCard";
+import { useCallback, useState } from "react";
+import { SectionList, Text, Heading, VStack, useToast } from "native-base";
 
+import { api } from "@services/api";
+
+import { HistoryCard } from "@components/HistoryCard";
 import { ScreenHeader } from "@components/ScreenHeader";
-import { Heading, VStack } from "native-base";
-import { useState } from "react";
+
+import { AppError } from "@utils/AppError";
+import { useFocusEffect } from "@react-navigation/native";
+import { HistoryByDayDTO } from "@dtos/HistoryByDayDTO";
 
 export function History() {
-    const [exercises, setExercises] = useState([
-        {
-            title: "26.08.22",
-            data: ["Puxada frontal", "Remada unilateral"]
-        },
-        {
-            title: "27.08.22",
-            data: ["Puxada frontal"]
+    const [isLoading, setIsLoading] = useState(true);
+    const [exercises, setExercises] = useState<HistoryByDayDTO[]>([]);
+
+    const toast = useToast();
+
+    async function fetchHistory() {
+        try {
+            setIsLoading(true)
+            const response = await api.get('/history');
+            setExercises(response.data)
+
+        } catch (error) {
+            const isAppError = error instanceof AppError;
+            const title = isAppError ? error.message : "Não foi possível carregar o histórico";
+            toast.show({
+                title,
+                placement: 'bottom',
+                bg: 'red.500',
+            })
+        } finally {
+            setIsLoading(false)
         }
-    ])
+    }
+
+    useFocusEffect(useCallback(() => {
+        fetchHistory();
+    }, []))
 
     return (
         <VStack flex={1}>
@@ -24,9 +46,11 @@ export function History() {
             <SectionList
                 px={8}
                 sections={exercises}
-                keyExtractor={item => item}
+                keyExtractor={item => item.id}
                 renderItem={({ item }) => ( // renderizando componente normal igual flat list
-                    <HistoryCard />
+                    <HistoryCard
+                        data={item}
+                    />
                 )}
                 renderSectionHeader={({ section }) => ( // renderizando um header que nesse caso é o title
                     <Heading

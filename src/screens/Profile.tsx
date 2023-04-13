@@ -9,6 +9,8 @@ import * as FileSystem from 'expo-file-system'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
+import defaultUserPhotoImg from '@assets/userPhotoDefault.png'
+
 import { ScreenHeader } from "@components/ScreenHeader";
 import { UserPhoto } from "@components/UserPhoto";
 import { Input } from "@components/Input";
@@ -53,7 +55,6 @@ const updateProfileSchema = yup.object({
 export function Profile() {
     const [isUpdating, setIsUpdating] = useState(false);
     const [photoIsLoading, setPhotoIsLoading] = useState(false); // esse estado representa se a photo está carregando ou não
-    const [userPhoto, setUserPhoto] = useState('https://img.quizur.com/f/img628d02b79ce434.31201082.jpg?lastEdited=1653408443')
 
     const toast = useToast();
     const { user, updateUserProfile } = useAuth();
@@ -82,7 +83,7 @@ export function Profile() {
             if (photoSelect.assets[0].uri) {
                 const photoInfo = await FileSystem.getInfoAsync(photoSelect.assets[0].uri) //pega as informações da foto (local, tamanho etc)
 
-                if (photoInfo.size && (photoInfo.size / 1024 / 1024) > 0.1) { // transformar de bytes pra megabytes
+                if (photoInfo.size && (photoInfo.size / 1024 / 1024) > 5) { // transformar de bytes pra megabytes
                     return toast.show({
                         title: 'Tamanho da Imagem Invalido',
                         _title: { alignSelf: 'center' },
@@ -92,7 +93,35 @@ export function Profile() {
                     })
                 }
 
-                setUserPhoto(photoSelect.assets[0].uri)
+                const fileExtension = photoSelect.assets[0].uri.split('.').pop(); // retorna o tipo da imagem (jpeg, png)
+
+                const photoFile = {
+                    name: `${user.name}.${fileExtension}`.toLocaleLowerCase(), // deixar tudo em minúsculo
+                    uri: photoSelect.assets[0].uri, // caminho da imagem onde ela está salva
+                    type: `${photoSelect.assets[0].type}/${fileExtension}` // pegando o tipo da imagem, nesse caso (image/jpeg)
+                } as any // fazer com que a tipagem não reclame no comando abaixo (.append('avatar', photoFile))
+
+                const userPhotoUploadForm = new FormData();
+                userPhotoUploadForm.append('avatar', photoFile); // primeiro parametro -> nome do campo do backend (upload.single("avatar"))
+
+                //tem 3 parametros: 1 caminho no backend, 2 passar o formulário, 3 objeto para deixar claro que o conteúdo não é um conteúdo JSON, no caso é um foto
+                const avatarUpdatedResponse = await api.patch('/users/avatar', userPhotoUploadForm, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                const userUpdated = user; // criando um objeto com os dados do usuario
+                userUpdated.avatar = avatarUpdatedResponse.data.avatar; // passando a imagem atualizada para esse novo objeto
+                updateUserProfile(userUpdated); // atualizando para o contexto os dados do usuario atualizado
+
+                console.log(userUpdated);
+
+                toast.show({
+                    title: 'Foto Atualizada',
+                    placement: 'top',
+                    bgColor: 'green.500'
+                })
             }
         } catch (error) {
             console.log(error)
@@ -152,7 +181,11 @@ export function Profile() {
                             />
                             :
                             <UserPhoto
-                                source={{ uri: userPhoto }}
+                                source={
+                                    user.avatar
+                                        ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` } // pegando no backend a imagem do usuario
+                                        : defaultUserPhotoImg // se a imagem não existir, mostrar uma imagem padrão
+                                }
                                 alt="Foto do usuário"
                                 size={PHOTO_SIZE}
                             />

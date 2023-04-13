@@ -7,6 +7,7 @@ import { useAuth } from "@hooks/useAuth";
 import defaultUserPhotoImg from '@assets/userPhotoDefault.png'
 
 import { UserPhoto } from "./UserPhoto";
+import { api } from "@services/api";
 
 export function HomeHeader() {
     const { user, signOut } = useAuth()
@@ -20,7 +21,10 @@ export function HomeHeader() {
             alignItems="center"
         >
             <UserPhoto
-                source={user.avatar ? { uri: user.avatar } : defaultUserPhotoImg}
+                source={
+                    user.avatar
+                        ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` } // pegando no backend a imagem do usuario
+                        : defaultUserPhotoImg} // se a imagem não existir, mostrar uma imagem padrão
                 alt="Imagem do usuário"
                 size={16}
                 mr={4}

@@ -30,11 +30,11 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) { //
         setUser(userData);         // salvando no Estado do contexto os dados do usuário para toda a aplicação poder utiliza-las     
     }
 
-    async function storageUserAndTokenSave(userData: UserDTO, token: string) {
+    async function storageUserAndTokenSave(userData: UserDTO, token: string, refresh_token: string) {
         try {
             setIsLoadingUserStorageData(true);
             await storageUserSave(userData); // salvando os dados no dispositivo do usuario com AsyncStorage
-            await storageAuthTokenSave(token); // salvando o token no Storage
+            await storageAuthTokenSave({ token, refresh_token }); // salvando o token no Storage
         } catch (error) {
             throw (error)
         } finally {
@@ -47,8 +47,8 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) { //
         try {
             const { data } = await api.post('/sessions', { email, password }); // pegando no backend os dados do usuario conforme os parametros(email, password)
 
-            if (data.user && data.token) {
-                await storageUserAndTokenSave(data.user, data.token)
+            if (data.user && data.token && data.refresh_token) {
+                await storageUserAndTokenSave(data.user, data.token, data.refresh_token)
                 userAndTokenUpdate(data.user, data.token); // chamando função para salvar os dados no Asyns Storage
             }
         } catch (error) {
@@ -86,7 +86,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) { //
             setIsLoadingUserStorageData(true);
 
             const userLogged = await storageUserGet(); // tentando recuperar algum dado de usuario do Storage
-            const token = await storageAuthTokenGet();
+            const { token } = await storageAuthTokenGet();
 
             if (token && userLogged) {
                 userAndTokenUpdate(userLogged, token); // setando no estado do contexto os dados do usuario do Storage
@@ -101,6 +101,14 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) { //
     useEffect(() => {
         loadUserData();
     }, [])
+
+    useEffect(() => {
+        const subscrible = api.registerInterceptTokenManager(signOut);
+
+        return () => {
+            subscrible(); //o retorno vai ser uma limpeza de memória
+        }
+    }, [signOut])
 
     return (
         <AuthContext.Provider value={{

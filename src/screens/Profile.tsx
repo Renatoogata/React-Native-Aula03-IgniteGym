@@ -1,21 +1,69 @@
 import { useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { Center, ScrollView, VStack, Skeleton, Text, Heading, useToast } from "native-base"; //Skeleton é uma mascara para quando um componente nãoe estiver sido carregado mostrar ele
+import { Controller, useForm } from "react-hook-form";
+
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
+
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
 import { ScreenHeader } from "@components/ScreenHeader";
 import { UserPhoto } from "@components/UserPhoto";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+import { useAuth } from "@hooks/useAuth";
+import { api } from "@services/api";
+import { AppError } from "@utils/AppError";
 
 const PHOTO_SIZE = 33; // como o skeleton e a propria foto de perfil utilizam o msm tamanho desse jeito facilita a manutenção do código
 
+type FormDataProps = {
+    name: string;
+    email: string;
+    password: string;
+    old_password: string;
+    confirm_password: string;
+}
+
+const updateProfileSchema = yup.object({
+    name: yup
+        .string()
+        .required('Informe o nome'),
+    password: yup
+        .string()
+        .min(6, 'A senha deve ter no mínimo 6 dígitos')
+        .nullable()
+        .transform((value) => !!value ? value : null), // Quando não tiver nenhum valor digitado ele retorna o campo para null ao invés de string vazia
+    confirm_password: yup
+        .string()
+        .nullable()
+        .transform((value) => !!value ? value : null) // Quando não tiver nenhum valor digitado ele retorna o campo para null ao invés de string vazia
+        .oneOf([yup.ref('password')], 'A confirmação de senha não confere')
+        .when('password', {
+            is: (Field: any) => Field,
+            then: (updateProfileSchema) => updateProfileSchema
+                .nullable()
+                .required('Informe a confirmação de senha') //quando o usuario digitar a senha no campo nova senha, esse campo sempre se tornará obrigatorio
+                .transform((value) => !!value ? value : null),
+        })
+});
+
 export function Profile() {
+    const [isUpdating, setIsUpdating] = useState(false);
     const [photoIsLoading, setPhotoIsLoading] = useState(false); // esse estado representa se a photo está carregando ou não
     const [userPhoto, setUserPhoto] = useState('https://img.quizur.com/f/img628d02b79ce434.31201082.jpg?lastEdited=1653408443')
 
-    const toast = useToast()
+    const toast = useToast();
+    const { user, updateUserProfile } = useAuth();
+    const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({ // passando valores padrões para o formulário
+        defaultValues: {
+            name: user.name,
+            email: user.email
+        },
+        resolver: yupResolver(updateProfileSchema),
+    });
 
     async function handleUserPhotoSelect() {
         setPhotoIsLoading(true) // ativar o skeleton
@@ -54,6 +102,34 @@ export function Profile() {
 
     }
 
+    async function handleProfileUpdate(data: FormDataProps) {
+        try {
+            setIsUpdating(true)
+
+            const userUpdated = user; // pegando os dados do usuário
+            userUpdated.name = data.name // atualizando o novo nome do usuário
+
+            await api.put('/users', data);
+
+            await updateUserProfile(userUpdated) // chamando a função que atuliza o nome do usuario no contexto
+
+            toast.show({
+                title: 'Pefil atulizado com sucesso',
+                placement: 'top',
+                bgColor: 'green.500',
+            })
+        } catch (error) {
+            const isAppError = error instanceof AppError
+            const title = isAppError ? error.message : 'Erro ao atualizar dados do usuário. Tente novamente mais tarde.'
+            toast.show({
+                title,
+                placement: 'top',
+                bg: 'red.500'
+            })
+        } finally {
+            setIsUpdating(false);
+        }
+    }
 
     return (
         <VStack flex={1}>
@@ -93,15 +169,34 @@ export function Profile() {
                         </Text>
                     </TouchableOpacity>
 
-                    <Input
-                        bg="gray.600"
-                        placeholder="Nome"
+                    <Controller
+                        control={control}
+                        name="name"
+                        render={({ field: { value, onChange } }) =>
+                            <Input
+                                bg="gray.600"
+                                placeholder="Nome"
+                                onChangeText={onChange}
+                                value={value}
+                                errorMessage={errors.name?.message}
+                            />
+                        }
                     />
 
-                    <Input
-                        bg="gray.600"
-                        placeholder="Email"
-                        isDisabled // desabilita o input (pode servir para mostrar algum dado que não pode ser modificado)
+                    <Controller
+                        control={control}
+                        name="email"
+                        render={({ field: { value, onChange } }) =>
+                            <Input
+                                bg="gray.600"
+                                placeholder="Email"
+                                onChangeText={onChange}
+                                value={value}
+                                isDisabled// desabilita o input (pode servir para mostrar algum dado que não pode ser modificado)
+                                isReadOnly // não poder escrever no input
+                                _disabled={{ bg: 'gray.500' }} // mudando a cor de fundo 
+                            />
+                        }
                     />
 
                     <Heading
@@ -115,27 +210,53 @@ export function Profile() {
                         Alterar senha
                     </Heading>
 
-                    <Input
-                        bg="gray.600"
-                        placeholder="Senha antiga"
-                        secureTextEntry // ocultar senha do usuario
+                    <Controller
+                        control={control}
+                        name="old_password"
+                        render={({ field: { onChange } }) =>
+                            <Input
+                                bg="gray.600"
+                                placeholder="Senha antiga"
+                                secureTextEntry // ocultar senha do usuario
+                                onChangeText={onChange}
+                                errorMessage={errors.old_password?.message}
+                            />
+
+                        }
                     />
 
-                    <Input
-                        bg="gray.600"
-                        placeholder="Nova senha"
-                        secureTextEntry // ocultar senha do usuario
+                    <Controller
+                        control={control}
+                        name="password"
+                        render={({ field: { onChange } }) =>
+                            <Input
+                                bg="gray.600"
+                                placeholder="Nova senha"
+                                secureTextEntry // ocultar senha do usuario
+                                onChangeText={onChange}
+                                errorMessage={errors.password?.message}
+                            />
+                        }
                     />
 
-                    <Input
-                        bg="gray.600"
-                        placeholder="Confirme a nova senha"
-                        secureTextEntry // ocultar senha do usuario
+                    <Controller
+                        control={control}
+                        name="confirm_password"
+                        render={({ field: { onChange } }) =>
+                            <Input
+                                bg="gray.600"
+                                placeholder="Confirme a nova senha"
+                                secureTextEntry // ocultar senha do usuario
+                                onChangeText={onChange}
+                                errorMessage={errors.confirm_password?.message}
+                            />
+                        }
                     />
-
                     <Button
                         mt={4}
                         title="Atualizar"
+                        onPress={handleSubmit(handleProfileUpdate)}
+                        isLoading={isUpdating}
                     />
                 </Center>
             </ScrollView>

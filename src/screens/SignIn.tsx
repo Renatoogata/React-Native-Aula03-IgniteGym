@@ -24,8 +24,8 @@ type FormDataProps = {
 }
 
 const logInSchema = yup.object({
-    email_login: yup.string().required('Informe o email').email('Email digitado errado'),
-    password: yup.string().required('Informe a senha'),
+    email_login: yup.string().required('Informe o email.').email('Email digitado errado.'),
+    password: yup.string().required('Informe a senha.'),
 })
 
 export function SignIn() {

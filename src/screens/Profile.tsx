@@ -115,8 +115,6 @@ export function Profile() {
                 userUpdated.avatar = avatarUpdatedResponse.data.avatar; // passando a imagem atualizada para esse novo objeto
                 updateUserProfile(userUpdated); // atualizando para o contexto os dados do usuario atualizado
 
-                console.log(userUpdated);
-
                 toast.show({
                     title: 'Foto Atualizada',
                     placement: 'top',
@@ -124,7 +122,7 @@ export function Profile() {
                 })
             }
         } catch (error) {
-            console.log(error)
+            throw (error)
         } finally {
             setPhotoIsLoading(false)
         }

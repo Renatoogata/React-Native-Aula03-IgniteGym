@@ -24,6 +24,7 @@ export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>
 
 const { Navigator, Screen } = createBottomTabNavigator<AppRoutes>();
 
+
 export function AppRoutes() {
     const { sizes, colors } = useTheme(); //definindo e usando tamanho padrão para os icones
     const iconSize = sizes[6];

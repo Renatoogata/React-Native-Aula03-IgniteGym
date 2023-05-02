@@ -2,7 +2,7 @@ import { HStack, Text, IconButton, CloseIcon, Icon, Pressable } from 'native-bas
 import { Ionicons } from '@expo/vector-icons';
 import { OSNotification } from 'react-native-onesignal';
 
-//import * as Linking from 'expo-linking';
+import * as Linking from 'expo-linking';
 
 type Props = {
     data: OSNotification
@@ -11,8 +11,9 @@ type Props = {
 
 export function Notification({ data, onClose }: Props) {
     function handleOnPress() {
-        if (data.launchURL) { // com o deeplink éssa é a estrátegia para quando o aplicativo estiver em primeiro plano
-            //Linking.openURL(data.launchURL);
+        if (data.launchURL) {
+            console.log("link: ", data.launchURL);
+            Linking.openURL(data.launchURL);
             onClose();
         }
     }
@@ -22,7 +23,7 @@ export function Notification({ data, onClose }: Props) {
             width='full'
             p={4}
             pt={12}
-            bgColor="gray.200"
+            bgColor="gray.400"
             position="absolute"
             top={0}
             onPress={handleOnPress}
@@ -31,9 +32,9 @@ export function Notification({ data, onClose }: Props) {
                 justifyContent="space-between"
                 alignItems="center"
             >
-                <Icon as={Ionicons} name="notifications-outline" size={5} color="black" mr={2} />
+                <Icon as={Ionicons} name="notifications-outline" size={5} color="gray.100" mr={2} />
 
-                <Text fontSize="md" color="black" flex={1}>
+                <Text fontSize="md" color="gray.100" flex={1}>
                     {data.title}
                 </Text>
 
@@ -41,8 +42,8 @@ export function Notification({ data, onClose }: Props) {
                     variant="unstyled"
                     _focus={{ borderWidth: 0 }}
                     icon={<CloseIcon size="3" />}
-                    _icon={{ color: "coolGray.600" }}
-                    color="black"
+                    _icon={{ color: "gray.100" }}
+                    color="gray.100"
                     onPress={onClose}
                 />
             </HStack>

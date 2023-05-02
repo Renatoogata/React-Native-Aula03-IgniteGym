@@ -18,3 +18,7 @@ web-build/
 
 # Env
 .env
+
+# Android && Ios
+android/
+ios/

@@ -3,6 +3,9 @@
 </h1>
 
 ## Demos
+<br />
+
+<h3>Push notifications & Deeplink</h3>
 
 ![Image](./assets/demoNotification.gif) <br>
 ![Image](./assets/demo1.gif)
@@ -60,8 +63,18 @@ Its an app that you can register your training marking each exercises as done an
 ```
 
 ```bash
-    # Connect Android device
-    $ expo start
+    # Run Prebuild
+    $ npx expo prebuild
+```
+
+```bash
+    # Run Android
+    $ npx expo run:android
+```
+
+```bash
+    # Run with Expo
+    $ npx expo start --d
 ```
 
 <br />

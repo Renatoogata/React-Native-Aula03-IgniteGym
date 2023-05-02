@@ -2,8 +2,9 @@
     <p>Ignite gym<p>
 </h1>
 
-## Demons
+## Demos
 
+![Image](./assets/demoNotification.gif) <br>
 ![Image](./assets/demo1.gif)
 ![Image](./assets/demo2.gif) 
 
@@ -31,12 +32,19 @@ Its an app that you can register your training marking each exercises as done an
 - [ImagePicker](https://docs.expo.dev/versions/latest/sdk/imagepicker/)
 - [FileSystem](https://docs.expo.dev/versions/latest/sdk/filesystem/)
 - [Axios](https://axios-http.com/ptbr/docs/intro)
+- [Dotenv](https://github.com/goatandsheep/react-native-dotenv)
+- [FireBase](https://firebase.google.com/?hl=pt-br)
+- [ExpoDevBuild](https://docs.expo.dev/develop/development-builds/installation/#install-expo-dev-client)
+- [OneSignal](https://documentation.onesignal.com/docs)
+- [DeepLinking](https://reactnavigation.org/docs/deep-linking/)
 
 <br />
 
 - [API LINK](https://github.com/rodrigorgtic/ignitegym-api.git)
 
 ## If you wanna try
+<br />
+<h3>Make sure to set enviroments variables in this case only oneSignal key is needed</h3>
 <br />
 
 <h3>Mobile</h3>

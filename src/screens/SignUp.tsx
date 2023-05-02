@@ -15,6 +15,7 @@ import BackgroundImg from '@assets/background.png'
 import { Input } from '@components/Input';
 import { Button } from '@components/Button';
 import { AppError } from '@utils/AppError';
+import { AuthNavigatorRoutesProps } from '@routes/auth.routes';
 
 type FormDataProps = {
     name: string;
@@ -40,10 +41,10 @@ export function SignUp() {
         resolver: yupResolver(signUpSchema) // estou passando meu signUpSchema para o meu formulário para fazaer a validação
     })
 
-    const navigation = useNavigation();
+    const navigation = useNavigation<AuthNavigatorRoutesProps>();
 
     function handleLogIn() {
-        navigation.goBack()
+        navigation.navigate('signIn')
     }
 
     async function handleSignUp({ email, name, password }: FormDataProps) {

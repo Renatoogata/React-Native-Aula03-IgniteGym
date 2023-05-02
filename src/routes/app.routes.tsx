@@ -11,6 +11,8 @@ import { Exercise } from '@screens/Exercise';
 import { History } from '@screens/History';
 import { Profile } from '@screens/Profile';
 
+import { tagUserInfoCreate } from '@notifications/notificationTags';
+
 type AppRoutes = {
     home: undefined
     exercise: { exerciseId: string }
@@ -25,6 +27,8 @@ const { Navigator, Screen } = createBottomTabNavigator<AppRoutes>();
 export function AppRoutes() {
     const { sizes, colors } = useTheme(); //definindo e usando tamanho padrão para os icones
     const iconSize = sizes[6];
+
+    tagUserInfoCreate();
 
     return (
         <Navigator screenOptions={{

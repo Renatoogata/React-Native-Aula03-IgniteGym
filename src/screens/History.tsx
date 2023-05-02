@@ -10,6 +10,7 @@ import { AppError } from "@utils/AppError";
 import { useFocusEffect } from "@react-navigation/native";
 import { HistoryByDayDTO } from "@dtos/HistoryByDayDTO";
 import { Loading } from "@components/Loading";
+import { exercisesCountByDay } from "@notifications/notificationTags";
 
 export function History() {
     const [isLoading, setIsLoading] = useState(true);
@@ -22,6 +23,7 @@ export function History() {
             setIsLoading(true)
             const response = await api.get('/history');
             setExercises(response.data)
+            exercisesCountByDay(response.data[0].data.length.toString())
 
         } catch (error) {
             const isAppError = error instanceof AppError;
